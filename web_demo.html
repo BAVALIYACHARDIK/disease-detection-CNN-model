@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Detection - Web Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #ecf0f1;
+        }
+        .upload-section.dragover {
+            background-color: #d5dbdb;
+            border-color: #2980b9;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #219a52;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .preview-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .confidence-fill {
+            height: 100%;
+            background-color: #27ae60;
+            transition: width 0.3s ease;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+        }
+        .error {
+            color: #e74c3c;
+            background-color: #fadbd8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #27ae60;
+            background-color: #d5f4e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .settings {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .setting-item {
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            font-weight: bold;
+        }
+        input[type="range"], input[type="number"] {
+            width: 150px;
+        }
+        .info {
+            color: #2c3e50;
+            background-color: #eaf2f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+        }
+        .advice-box {
+            background: #fff;
+            border: 1px solid #e1e7ec;
+            border-radius: 6px;
+            padding: 12px 14px;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        .badge {
+            display: inline-block;
+            background:#3498db;
+            color:#fff;
+            padding:2px 8px;
+            border-radius:12px;
+            font-size:12px;
+            margin-left:8px;
+        }
+        .advice-section { margin:8px 0 12px 0 }
+        .advice-list { margin:6px 0 12px 18px }
+        .advice-list li { margin:6px 0 }
+        .copy-btn { float:right; background:#2980b9; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 Plant Disease Detection</h1>
+        
+        <div class="upload-section" id="uploadSection">
+            <h3>Upload Plant Image</h3>
+            <p>Drag and drop an image here or click to select</p>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            <button id="selectButton">Select Image</button>
+        </div>
+
+        <div class="settings">
+            <h4>Detection Settings</h4>
+            <div class="setting-item">
+                <label>Confidence Threshold:</label>
+                <input type="range" id="confidenceThreshold" min="0" max="1" step="0.05" value="0.6">
+                <span id="confidenceValue">0.6</span>
+            </div>
+            <div class="setting-item">
+                <label>Strict Validation:</label>
+                <input type="checkbox" id="strictValidation">
+                <span>Use stricter image validation</span>
+            </div>
+            <div class="setting-item">
+                <label>Treatment Advice (Gemini):</label>
+                <input type="checkbox" id="includeAdvice" checked>
+                <span>Return AI-powered treatment recommendations</span>
+            </div>
+        </div>
+
+        <div class="preview-section" id="previewSection" style="display: none;">
+            <h4>Selected Image:</h4>
+            <img id="previewImage" class="preview-image" alt="Preview">
+            <br>
+            <button id="predictButton" onclick="predictDisease()">Analyze Disease</button>
+        </div>
+
+        <div id="loadingSection" class="loading" style="display: none;">
+            <h4>🔍 Analyzing image...</h4>
+            <p>Please wait while we process your image.</p>
+        </div>
+
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h3>🎯 Detection Results</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        let selectedFile = null;
+
+        // DOM elements
+        const imageInput = document.getElementById('imageInput');
+        const uploadSection = document.getElementById('uploadSection');
+        const selectButton = document.getElementById('selectButton');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsContent = document.getElementById('resultsContent');
+        const confidenceThreshold = document.getElementById('confidenceThreshold');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const strictValidation = document.getElementById('strictValidation');
+    const includeAdvice = document.getElementById('includeAdvice');
+
+        // Event listeners
+        imageInput.addEventListener('change', handleFileSelect);
+        selectButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            imageInput.click();
+        });
+        uploadSection.addEventListener('dragover', handleDragOver);
+        uploadSection.addEventListener('drop', handleDrop);
+        // Remove the conflicting click event on uploadSection
+
+        confidenceThreshold.addEventListener('input', (e) => {
+            confidenceValue.textContent = e.target.value;
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect({target: {files: files}});
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                displayPreview(file);
+                hideResults();
+            } else {
+                showError('Please select a valid image file.');
+            }
+        }
+
+        function displayPreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewSection.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function predictDisease() {
+            if (!selectedFile) {
+                showError('Please select an image first.');
+                return;
+            }
+
+            showLoading();
+            hideResults();
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('confidence_threshold', confidenceThreshold.value);
+                formData.append('strict_validation', strictValidation.checked);
+                formData.append('include_advice', includeAdvice.checked);
+
+                const response = await fetch(`${API_BASE_URL}/predict`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                displayResults(result);
+
+            } catch (error) {
+                showError(`Failed to analyze image: ${error.message}. Make sure the API server is running.`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function displayResults(result) {
+            const prediction = result.prediction;
+            const validation = result.validation;
+            const metrics = result.image_metrics;
+            
+            let html = '';
+
+            // Main prediction with formatted names
+            html += `
+                <div class="result-item">
+                    <h4>🎯 Primary Detection</h4>
+                    <p><strong>Plant:</strong> ${prediction.plant}</p>
+                    <p><strong>Disease:</strong> ${prediction.disease} ${prediction.is_healthy ? '✅' : '⚠️'}</p>
+                    <p><strong>Full Name:</strong> ${prediction.formatted_name}</p>
+                    <p><strong>Confidence:</strong> ${(prediction.confidence * 100).toFixed(1)}%</p>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${prediction.confidence * 100}%"></div>
+                    </div>
+                </div>
+            `;
+
+            // Top 3 predictions with formatted names
+            html += `
+                <div class="result-item">
+                    <h4>📊 Top 3 Predictions</h4>
+            `;
+            result.top_3_predictions.forEach((pred, index) => {
+                const healthIcon = pred.is_healthy ? '✅' : '⚠️';
+                html += `
+                    <div style="margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                        <p><strong>${index + 1}. ${pred.formatted_name} ${healthIcon}</strong></p>
+                        <p style="margin: 4px 0; color: #666; font-size: 0.9em;">Plant: ${pred.plant} | Disease: ${pred.disease}</p>
+                        <p style="margin: 4px 0;">Confidence: ${(pred.confidence * 100).toFixed(1)}%</p>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${pred.confidence * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            // Enhanced validation results
+            html += `
+                <div class="result-item">
+                    <h4>🔍 Validation Results</h4>
+                    <p><strong>Valid Prediction:</strong> ${validation.is_valid_prediction ? '✅ Yes' : '❌ No'}</p>
+                    <p><strong>Image Likely Leaf:</strong> ${validation.image_validation.is_likely_leaf ? '✅ Yes' : '❌ No'}</p>
+                    <p><strong>Image Confidence:</strong> ${(validation.image_validation.confidence_score * 100).toFixed(1)}%</p>
+                    <p><strong>Model Confidence OK:</strong> ${validation.model_validation.confidence_threshold_met ? '✅ Yes' : '❌ No'}</p>
+                    ${validation.issues.length > 0 ? `<p><strong>Issues:</strong> ${validation.issues.join(', ')}</p>` : '<p><strong>Issues:</strong> None detected ✅</p>'}
+                </div>
+            `;
+
+            // Image metrics
+            html += `
+                <div class="result-item">
+                    <h4>📈 Image Analysis</h4>
+                    <p><strong>Green Ratio:</strong> ${(metrics.green_ratio * 100).toFixed(1)}%</p>
+                    <p><strong>Plant Colors:</strong> ${(metrics.plant_color_ratio * 100).toFixed(1)}%</p>
+                    <p><strong>Skin Detection:</strong> ${(metrics.skin_ratio * 100).toFixed(1)}%</p>
+                    <p><strong>Artificial Colors:</strong> ${(metrics.neon_ratio * 100).toFixed(1)}%</p>
+                    <p><strong>Edge Density:</strong> ${metrics.edge_density.toFixed(3)}</p>
+                    <p><strong>Brightness:</strong> ${metrics.brightness.toFixed(1)}</p>
+                    <p><strong>Contrast:</strong> ${metrics.contrast.toFixed(1)}</p>
+                    ${metrics.blur_variance ? `<p><strong>Blur Variance:</strong> ${metrics.blur_variance}</p>` : ''}
+                </div>
+            `;
+
+            // Show warnings if any
+            if (result.warning) {
+                html += `
+                    <div class="result-item">
+                        <h4>⚠️ Warning</h4>
+                        <p>${result.warning}</p>
+                        ${result.suggestion ? `<p><strong>Suggestion:</strong> ${result.suggestion}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            // Treatment advice (Gemini)
+            if (result.treatment_advice) {
+                if (result.treatment_advice.summary) {
+                    const src = result.treatment_advice.source ? ` (source: ${result.treatment_advice.source})` : '';
+                    html += `<div class="result-item"><h4>🧪 Treatment Advice${src}</h4>`;
+
+                    // Render structured advice if present
+                    const structured = result.treatment_advice.structured || null;
+                    if (structured) {
+                        window.lastAdviceStructured = structured;
+                            // header with copy button
+                            html += `<div style="position:relative"><button class="copy-btn" onclick="copyAdvice()">Copy advice</button></div>`;
+                            if (structured.short_summary) {
+                                html += `<div class="advice-section"><strong>Summary</strong><div class="advice-box">${escapeHtml(structured.short_summary)}</div></div>`;
+                            }
+                            const renderList = (title, arr) => {
+                                if (!arr || !arr.length) return '';
+                                let s = `<div class="advice-section"><strong>${escapeHtml(title)}</strong><ul class="advice-list">`;
+                                arr.forEach(item => { s += `<li>${escapeHtml(typeof item === 'string' ? item : JSON.stringify(item))}</li>` });
+                                s += `</ul></div>`;
+                                return s;
+                            }
+
+                            html += renderList('Immediate steps', structured.immediate_steps);
+                            html += renderList('Cultural / Organic controls', structured.cultural_practices);
+
+                            if (structured.chemical_options && structured.chemical_options.length) {
+                                html += `<div class="advice-section"><strong>Chemical options</strong><div style="overflow:auto"><table style="width:100%; border-collapse:collapse">`;
+                                html += `<thead><tr><th style="text-align:left;border-bottom:1px solid #ddd;padding:6px">Active ingredient</th><th style="text-align:left;border-bottom:1px solid #ddd;padding:6px">Notes</th></tr></thead><tbody>`;
+                                structured.chemical_options.forEach(opt => {
+                                    const ai = escapeHtml(opt.active_ingredient || opt.active || '');
+                                    const notes = escapeHtml(opt.notes || opt.note || '');
+                                    html += `<tr><td style="padding:6px;border-bottom:1px solid #f1f1f1">${ai}</td><td style="padding:6px;border-bottom:1px solid #f1f1f1">${notes}</td></tr>`;
+                                });
+                                html += `</tbody></table></div></div>`;
+                            } else {
+                                html += `<div class="advice-section"><strong>Chemical options</strong><div class="advice-box">No chemical options suggested.</div></div>`;
+                            }
+
+                            html += renderList('Prevention', structured.prevention);
+                    } else {
+                        // Fallback to raw summary
+                        html += `<div class="advice-box">${escapeHtml(result.treatment_advice.summary)}</div>`;
+                    }
+
+                    html += `</div>`;
+                } else if (result.treatment_advice.error) {
+                    html += `
+                        <div class="result-item info">
+                            <h4>🧪 Treatment Advice — Error</h4>
+                            <p>${escapeHtml(result.treatment_advice.error)}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // Info note for advice configuration
+            if (result.info && result.info.advice_note) {
+                html += `
+                    <div class="result-item info">
+                        <strong>Note:</strong> ${result.info.advice_note}
+                    </div>
+                `;
+            }
+
+            resultsContent.innerHTML = html;
+            resultsSection.style.display = 'block';
+        }
+
+        // Simple HTML escape for advice text
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function showLoading() {
+            loadingSection.style.display = 'block';
+        }
+
+        function hideLoading() {
+            loadingSection.style.display = 'none';
+        }
+
+        function hideResults() {
+            resultsSection.style.display = 'none';
+        }
+
+        function showError(message) {
+            resultsContent.innerHTML = `<div class="error">${message}</div>`;
+            resultsSection.style.display = 'block';
+        }
+
+        function copyAdvice() {
+            try {
+                const ta = document.createElement('textarea');
+                ta.style.position = 'fixed'; ta.style.left = '-9999px';
+                const structured = (window.lastAdviceStructured) ? window.lastAdviceStructured : null;
+                if (structured) {
+                    ta.value = JSON.stringify(structured, null, 2);
+                } else {
+                    const raw = document.querySelector('.advice-box');
+                    ta.value = raw ? raw.innerText : '';
+                }
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('Advice copied to clipboard');
+            } catch (e) {
+                alert('Copy failed');
+            }
+        }
+
+        // Check API status on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('API Status:', data);
+                } else {
+                    showError('API server is not responding. Please start the server with: python api.py');
+                }
+            } catch (error) {
+                showError('Cannot connect to API server. Please start the server with: python api.py');
+            }
+        });
+    </script>
+</body>
+</html>
