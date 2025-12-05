@@ -1,31 +1,31 @@
-# 🌿 Plant Disease Detection & Treatment API
+# Plant Disease Detection & Treatment API
 
 A comprehensive REST API for detecting plant diseases from leaf images using deep learning and providing AI-powered treatment recommendations. This hybrid system combines local machine learning for disease detection with Google's Gemini AI for intelligent treatment advice.
 
-## � Key Features
+## Key Features
 
-### 🔬 Disease Detection (Local ML)
+### Disease Detection (Local ML)
 - **38 Plant Disease Classes**: Supports detection across Apple, Corn, Grape, Tomato, Potato, Cherry, and 10+ other plant types
 - **High Accuracy CNN Model**: Trained TensorFlow model for precise disease classification
 - **Advanced Image Validation**: Multi-layered validation including green ratio, plant color detection, skin tone rejection, and blur assessment
 - **Confidence Scoring**: Detailed confidence metrics and top-3 predictions
 - **Quality Assessment**: Comprehensive image quality analysis with 10+ validation criteria
 
-### 🧠 AI Treatment Advice (Gemini Integration)
+### AI Treatment Advice (Gemini Integration)
 - **Intelligent Treatment Recommendations**: Powered by Google Gemini AI
 - **Structured Advice Format**: Organized recommendations with immediate steps, cultural practices, chemical options, and prevention tips
 - **Caching System**: Efficient caching with TTL to reduce API calls and improve response times
 - **Fallback Mechanisms**: Static advice fallback when Gemini API is unavailable
 - **Retry Logic**: Robust error handling with exponential backoff
 
-### 🌐 API Features
+### API Features
 - **RESTful Design**: Clean, intuitive endpoint structure
 - **Interactive Documentation**: Auto-generated Swagger UI at `/docs`
 - **CORS Support**: Ready for web and mobile integration
 - **Comprehensive Validation**: Multiple validation modes (normal/strict)
 - **Rich Response Format**: Detailed JSON responses with metadata and metrics
 
-## �️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -44,13 +44,13 @@ A comprehensive REST API for detecting plant diseases from leaf images using dee
                        └─────────────────┘
 ```
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Python**: 3.8 or higher
 - **Model File**: `trained_model.keras` or `trained_model.h5`
 - **Gemini API Key**: (Optional) For AI treatment advice
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Installation
 
@@ -94,7 +94,7 @@ uvicorn api:app --host 0.0.0.0 --port 8000 --reload &
 - **Health Check**: `http://localhost:8000/health`
 - **Web Demo**: Open `web_demo.html` in your browser
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### GET `/`
 Returns basic API information, version, and available endpoints.
@@ -144,7 +144,7 @@ Get all supported plant disease classes with formatted names.
 ```
 
 ### POST `/predict`
-**🎯 Main endpoint** for disease detection and treatment advice.
+**Main endpoint** for disease detection and treatment advice.
 
 **Parameters:**
 - `file`: Image file (JPG, JPEG, PNG) - **Required**
@@ -320,7 +320,7 @@ Validate if an image appears to be a plant leaf without running disease predicti
 }
 ```
 
-## 🧪 Testing the API
+## Testing the API
 
 ### 1. Using the Enhanced Web Demo
 Open `web_demo.html` in your browser for a beautiful, interactive interface that displays:
@@ -403,7 +403,7 @@ if result['success']:
                 print(f"  - {step}")
 ```
 
-## 🔗 Integration Examples
+## Integration Examples
 
 ### Web Application (JavaScript)
 ```javascript
@@ -627,7 +627,7 @@ if result['success']:
             print(f"  • {step}")
 ```
 
-## ⚙️ Configuration & Setup
+## Configuration & Setup
 
 ### Environment Variables
 
@@ -687,7 +687,7 @@ pip install -r requirements_api.txt -r requirements_gemini.txt
 - `opencv-python`: Advanced image validation
 - `uvicorn`: ASGI server
 
-## 🌐 Deployment Options
+## Deployment Options
 
 ### 1. Local Development
 ```bash
@@ -782,56 +782,56 @@ gunicorn api:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --env
 - Use a reverse proxy (nginx/Apache)
 - Configure rate limiting
 
-## 📊 Supported Plant Classes & Diseases
+## Supported Plant Classes & Diseases
 
 The API supports detection of **38 different plant disease classes** across **14 plant types**:
 
-### 🍎 Apple (4 classes)
+### Apple (4 classes)
 - **Apple Scab** - Fungal disease causing dark spots on leaves
 - **Black Rot** - Causes brown circular spots and fruit rot
 - **Cedar Apple Rust** - Orange spots on leaves, requires cedar trees nearby
 - **Healthy** - No disease detected
 
-### 🫐 Blueberry (1 class)
+### Blueberry (1 class)
 - **Healthy** - No disease detected
 
-### 🍒 Cherry (2 classes)
+### Cherry (2 classes)
 - **Powdery Mildew** - White powdery coating on leaves
 - **Healthy** - No disease detected
 
-### 🌽 Corn/Maize (4 classes)
+### Corn/Maize (4 classes)
 - **Cercospora Leaf Spot (Gray Leaf Spot)** - Gray rectangular spots
 - **Common Rust** - Orange/brown pustules on leaves
 - **Northern Leaf Blight** - Large cigar-shaped lesions
 - **Healthy** - No disease detected
 
-### 🍇 Grape (4 classes)
+### Grape (4 classes)
 - **Black Rot** - Dark circular spots on leaves and fruit
 - **Esca (Black Measles)** - Tiger stripe pattern on leaves
 - **Leaf Blight (Isariopsis Leaf Spot)** - Brown spots with halos
 - **Healthy** - No disease detected
 
-### 🍊 Orange (1 class)
+### Orange (1 class)
 - **Huanglongbing (Citrus Greening)** - Yellowing, stunted growth
 
-### 🍑 Peach (2 classes)
+### Peach (2 classes)
 - **Bacterial Spot** - Small dark spots on leaves
 - **Healthy** - No disease detected
 
-### 🌶️ Pepper (Bell) (2 classes)
+### Pepper (Bell) (2 classes)
 - **Bacterial Spot** - Small dark lesions on leaves
 - **Healthy** - No disease detected
 
-### 🥔 Potato (3 classes)
+### Potato (3 classes)
 - **Early Blight** - Dark concentric ring spots
 - **Late Blight** - Water-soaked spots, white mold
 - **Healthy** - No disease detected
 
-### 🍓 Strawberry (2 classes)
+### Strawberry (2 classes)
 - **Leaf Scorch** - Brown spots with purple margins
 - **Healthy** - No disease detected
 
-### 🍅 Tomato (10 classes)
+### Tomato (10 classes)
 - **Bacterial Spot** - Small dark spots with yellow halos
 - **Early Blight** - Dark spots with concentric rings
 - **Late Blight** - Large brown spots with white mold
@@ -843,12 +843,12 @@ The API supports detection of **38 different plant disease classes** across **14
 - **Tomato Mosaic Virus** - Mottled yellow-green pattern
 - **Healthy** - No disease detected
 
-### 🥬 Other Plants (3 classes)
+### Other Plants (3 classes)
 - **Raspberry - Healthy**
 - **Soybean - Healthy**
 - **Squash - Powdery Mildew**
 
-## 🔍 Image Validation System
+## Image Validation System
 
 The API includes comprehensive image validation to ensure accurate predictions:
 
@@ -867,7 +867,7 @@ The API includes comprehensive image validation to ensure accurate predictions:
 - **Strict Mode**: Enhanced validation for critical applications
 - **Skip Validation**: Bypass validation (not recommended for production)
 
-## 🧠 AI Treatment Advice System
+## AI Treatment Advice System
 
 ### How It Works
 1. **Disease Detection**: Local ML model identifies the plant disease
@@ -898,11 +898,11 @@ The API includes comprehensive image validation to ensure accurate predictions:
 - **Error Recovery**: Graceful fallback to static advice
 - **Caching**: 1-hour TTL to reduce redundant API calls
 
-## ❗ Troubleshooting & FAQ
+## Troubleshooting & FAQ
 
 ### Common Issues & Solutions
 
-#### 🚫 Model Loading Issues
+#### Model Loading Issues
 **Problem**: `Model file not found` error
 ```bash
 FileNotFoundError: Model file not found. Expected 'trained_model.keras' or 'trained_model.h5'
@@ -912,14 +912,14 @@ FileNotFoundError: Model file not found. Expected 'trained_model.keras' or 'trai
 - Check file permissions
 - Verify file isn't corrupted
 
-#### 🌐 API Connection Issues
+#### API Connection Issues
 **Problem**: API not accessible or CORS errors
 **Solutions**:
 - Check server is running: `curl http://localhost:8000/health`
 - Verify port availability: `netstat -an | grep 8000`
 - For CORS issues, update `allow_origins` in CORS middleware
 
-#### 🔑 Gemini API Issues
+#### Gemini API Issues
 **Problem**: Treatment advice not working
 **Solutions**:
 - Verify `GEMINI_API_KEY` is set in `.env` file
@@ -927,7 +927,7 @@ FileNotFoundError: Model file not found. Expected 'trained_model.keras' or 'trai
 - Ensure sufficient API quota
 - Check network connectivity
 
-#### 📸 Image Validation Failures
+#### Image Validation Failures
 **Problem**: "Image may not be a plant leaf" warnings
 **Solutions**:
 - Use clear, well-lit photos of plant leaves
@@ -935,7 +935,7 @@ FileNotFoundError: Model file not found. Expected 'trained_model.keras' or 'trai
 - Avoid photos with dominant background colors
 - Use `skip_validation=true` for testing (not recommended for production)
 
-#### 🎯 Low Confidence Predictions
+#### Low Confidence Predictions
 **Problem**: Predictions below confidence threshold
 **Solutions**:
 - Improve image quality (lighting, focus, resolution)
@@ -943,7 +943,7 @@ FileNotFoundError: Model file not found. Expected 'trained_model.keras' or 'trai
 - Lower confidence threshold for testing
 - Try different angles or lighting conditions
 
-#### 💾 Performance Issues
+#### Performance Issues
 **Problem**: Slow response times or memory errors
 **Solutions**:
 - Reduce image size before upload (< 2MB recommended)
@@ -1025,12 +1025,12 @@ logger.error(f"Gemini API error: {error_message}")
 
 ### Getting Help
 
-- 📖 **Documentation**: Check this README and inline API docs at `/docs`
-- 🧪 **Testing**: Use the included test scripts and web demo
-- 🐛 **Issues**: Report bugs with detailed error messages and steps to reproduce
-- 💡 **Feature Requests**: Suggest improvements with clear use cases
+- **Documentation**: Check this README and inline API docs at `/docs`
+- **Testing**: Use the included test scripts and web demo
+- **Issues**: Report bugs with detailed error messages and steps to reproduce
+- **Feature Requests**: Suggest improvements with clear use cases
 
-## 📄 License & Legal
+## License & Legal
 
 This project is provided for educational and research purposes. When using in production:
 
@@ -1039,7 +1039,7 @@ This project is provided for educational and research purposes. When using in pr
 - Implement appropriate data retention policies
 - Add proper attribution for the AI components
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Areas for improvement:
 
@@ -1050,7 +1050,7 @@ Contributions are welcome! Areas for improvement:
 - Mobile app examples
 - Docker improvements
 
-## 📞 Support & Community
+## Support & Community
 
 - **Issues**: Create detailed bug reports with logs and reproduction steps
 - **Discussions**: Share use cases and integration examples
@@ -1059,4 +1059,4 @@ Contributions are welcome! Areas for improvement:
 
 ---
 
-**Built with ❤️ for the agricultural and plant health community**
+**Built for the agricultural and plant health community**
